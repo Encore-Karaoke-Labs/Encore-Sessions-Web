@@ -47,6 +47,59 @@
         padding: 0;
       }
 
+      h1,
+      h2,
+      h3,
+      h4,
+      .nav-logo,
+      .btn {
+        font-family: "Rajdhani", sans-serif;
+        font-weight: 700;
+      }
+
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+
+      nav {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        padding: 3em 4rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 1000;
+      }
+
+      .nav-logo {
+        font-size: 2.4rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 2.5rem;
+        align-items: center;
+      }
+
+      .nav-links a {
+        font-family: "Rajdhani", sans-serif;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--text-dim);
+        transition: all 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .nav-links a:hover {
+        color: var(--text-main);
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+      }
+
       body {
         font-family: "Radio Canada", sans-serif;
         background-color: var(--bg-color);
@@ -195,6 +248,11 @@
     </style>
   </head>
   <body>
+    <nav>
+      <a class="nav-logo" href="https://www.encorekaraoke.org" target="_blank"
+        >Encore</a
+      >
+    </nav>
     <canvas id="constellation-bg"></canvas>
     <main class="card">
       <div
