@@ -2,11 +2,298 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Encore Sessions</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Encore Sessions - Join Room</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Radio+Canada:wght@400;500;600;700&family=Rajdhani:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script
+      type="module"
+      src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"
+    ></script>
+    <script
+      nomodule
+      src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"
+    ></script>
+
+    <style>
+      :root {
+        --bg-color: #080810;
+        --card-bg: rgba(15, 15, 25, 0.9);
+        --primary: #89cff0;
+        --secondary: #ffd700;
+        --danger: #ff5555;
+        --success: #55ff55;
+        --text: #ffffff;
+        --text-dim: rgba(255, 255, 255, 0.6);
+        --border: rgba(137, 207, 240, 0.3);
+        --radius: 16px;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Radio Canada", sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        background-image: radial-gradient(
+          circle at center,
+          rgba(137, 207, 240, 0.08) 0%,
+          transparent 70%
+        );
+        overflow-x: hidden;
+      }
+
+      .app-header {
+        margin-bottom: 2rem;
+        text-align: center;
+      }
+
+      .app-header h1 {
+        font-family: "Rajdhani", sans-serif;
+        font-size: 2.8rem;
+        font-weight: 800;
+        color: var(--primary);
+        letter-spacing: 0.05em;
+        text-shadow: 0 0 20px rgba(137, 207, 240, 0.5);
+      }
+
+      .app-header p {
+        font-size: 1.1rem;
+        color: var(--secondary);
+        letter-spacing: 0.1em;
+        font-weight: 600;
+        margin-top: 0.25rem;
+        text-transform: uppercase;
+      }
+
+      .card {
+        background: var(--card-bg);
+        border: 2px solid var(--border);
+        border-radius: var(--radius);
+        width: 100%;
+        max-width: 520px;
+        padding: 2.5rem 2rem;
+        text-align: center;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(15px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+        position: relative;
+      }
+
+      .icon-badge {
+        font-size: 4rem;
+        color: var(--primary);
+        filter: drop-shadow(0 0 12px rgba(137, 207, 240, 0.5));
+        line-height: 1;
+      }
+
+      .card-title {
+        font-family: "Rajdhani", sans-serif;
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: var(--secondary);
+        letter-spacing: 0.08em;
+      }
+
+      .card-desc {
+        font-size: 1.15rem;
+        color: var(--text-dim);
+        line-height: 1.5;
+        max-width: 400px;
+      }
+
+      .btn {
+        font-family: "Rajdhani", sans-serif;
+        font-size: 1.4rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        width: 100%;
+        height: 60px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: all 0.2s ease;
+        text-decoration: none;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: #080810;
+        box-shadow: 0 0 20px rgba(137, 207, 240, 0.3);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 30px rgba(137, 207, 240, 0.5);
+      }
+
+      .btn-primary:active {
+        transform: translateY(0);
+      }
+
+      .help-text {
+        font-size: 0.9rem;
+        color: var(--text-dim);
+        margin-top: -0.5rem;
+      }
+
+      .error-box {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .error-box .icon-badge {
+        color: var(--danger);
+        filter: drop-shadow(0 0 12px rgba(255, 85, 85, 0.5));
+      }
+
+      .error-box .card-title {
+        color: var(--danger);
+      }
+    </style>
   </head>
-  <body></body>
-  <script>
-    alert(window.location.href);
-  </script>
+  <body>
+    <header class="app-header">
+      <h1>ENCORE SESSIONS</h1>
+    </header>
+
+    <main class="card">
+      <div
+        id="join-view"
+        style="
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 1.5rem;
+          width: 100%;
+        "
+      >
+        <ion-icon name="people" class="icon-badge"></ion-icon>
+
+        <div class="card-title">SESSION INVITE</div>
+
+        <div class="card-desc">
+          You've been invited to join a remote karaoke room in Encore.
+        </div>
+
+        <button class="btn btn-primary" id="open-btn">
+          <ion-icon name="open-outline" style="font-size: 1.6rem"></ion-icon>
+          <span>OPEN ENCORE APP</span>
+        </button>
+
+        <div class="help-text">
+          If the app didn't open automatically, click the button above.
+        </div>
+      </div>
+
+      <div id="error-view" class="error-box">
+        <ion-icon name="alert-circle" class="icon-badge"></ion-icon>
+        <div class="card-title">INVALID LINK</div>
+        <div class="card-desc">
+          No valid session room code was found in the URL. Please check your
+          invite link and try again.
+        </div>
+      </div>
+    </main>
+
+    <script>
+      /**
+       * Extracts the Room Code from either Netlify route path (/join/<roomCode>)
+       * or query parameter (?room=<roomCode> / ?code=<roomCode>).
+       */
+      function getRoomCode() {
+        const urlParams = new URLSearchParams(window.location.search);
+        let room = urlParams.get("room");
+        if (room && room.trim()) return room.trim();
+
+        const pathSegments = window.location.pathname
+          .split("/")
+          .filter(Boolean);
+        const joinIndex = pathSegments.indexOf("join");
+
+        if (joinIndex !== -1 && pathSegments[joinIndex + 1]) {
+          return pathSegments[joinIndex + 1].trim();
+        }
+
+        const lastSegment = pathSegments[pathSegments.length - 1];
+        if (
+          lastSegment &&
+          lastSegment !== "join" &&
+          lastSegment !== "join.html"
+        ) {
+          return lastSegment.trim();
+        }
+
+        return null;
+      }
+
+      async function checkAppHealth() {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+          const res = await fetch("http://127.0.0.1:9864/local_ip", {
+            cache: "no-store",
+            signal: controller.signal,
+          });
+          clearTimeout(timeoutId);
+
+          return res.ok;
+        } catch (e) {
+          return false;
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        const roomCode = getRoomCode();
+        const joinView = document.getElementById("join-view");
+        const errorView = document.getElementById("error-view");
+        const openBtn = document.getElementById("open-btn");
+
+        if (!roomCode) {
+          joinView.style.display = "none";
+          errorView.style.display = "flex";
+          return;
+        }
+
+        const deepLinkUrl = `encore://session/${encodeURIComponent(roomCode)}`;
+
+        function triggerDeepLink() {
+          window.location.href = deepLinkUrl;
+        }
+
+        openBtn.addEventListener("click", triggerDeepLink);
+
+        if (await checkAppHealth()) {
+          triggerDeepLink();
+        }
+      });
+    </script>
+  </body>
 </html>
