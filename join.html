@@ -30,7 +30,7 @@
     <style>
       :root {
         --bg-color: #080810;
-        --card-bg: rgba(15, 15, 25, 0.9);
+        --card-bg: rgba(15, 15, 25, 0.2);
         --primary: #89cff0;
         --secondary: #ffd700;
         --danger: #ff5555;
@@ -65,6 +65,17 @@
         overflow-x: hidden;
       }
 
+      #constellation-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        pointer-events: none;
+        will-change: transform, opacity;
+      }
+
       .app-header {
         margin-bottom: 2rem;
         text-align: center;
@@ -97,7 +108,7 @@
         padding: 2.5rem 2rem;
         text-align: center;
         box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
-        backdrop-filter: blur(15px);
+        backdrop-filter: blur(15px) brightness(150%);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -184,10 +195,7 @@
     </style>
   </head>
   <body>
-    <header class="app-header">
-      <h1>ENCORE SESSIONS</h1>
-    </header>
-
+    <canvas id="constellation-bg"></canvas>
     <main class="card">
       <div
         id="join-view"
@@ -298,6 +306,158 @@
         if (await checkAppHealth()) {
           triggerDeepLink();
         }
+      });
+    </script>
+    <script>
+      const observerOptions = {
+        root: null,
+        rootMargin: "0px",
+        threshold: 0.1,
+      };
+
+      const observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("show");
+            observer.unobserve(entry.target);
+          }
+        });
+      }, observerOptions);
+
+      document.querySelectorAll(".scroll-anim").forEach((elem) => {
+        observer.observe(elem);
+      });
+
+      const canvas = document.getElementById("constellation-bg");
+      const ctx = canvas.getContext("2d");
+
+      let width, height;
+      let stars = [];
+
+      const mouse = {
+        x: null,
+        y: null,
+        radius: 120, // How far the mouse repels stars
+      };
+
+      window.addEventListener("mousemove", (e) => {
+        const rect = canvas.getBoundingClientRect();
+        mouse.x = e.clientX - rect.left;
+        mouse.y = e.clientY - rect.top;
+      });
+
+      window.addEventListener("mouseout", () => {
+        mouse.x = null;
+        mouse.y = null;
+      });
+
+      function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+      }
+      window.addEventListener("resize", resize);
+      resize();
+
+      class Star {
+        constructor() {
+          this.x = Math.random() * width;
+          this.y = Math.random() * height;
+
+          this.originX = this.x;
+          this.originY = this.y;
+
+          this.vx = 0;
+          this.vy = 0;
+
+          this.friction = 0.6;
+          this.spring = 0.03;
+
+          this.radius = Math.random() * 3 + 0.2;
+          this.baseAlpha = Math.random() * 0.6 + 0.1;
+          this.twinkleSpeed = Math.random() * 0.03 + 0.005;
+          this.time = Math.random() * Math.PI * 2;
+        }
+
+        update() {
+          const dxOrigin = this.originX - this.x;
+          const dyOrigin = this.originY - this.y;
+          this.vx += dxOrigin * this.spring;
+          this.vy += dyOrigin * this.spring;
+
+          if (mouse.x !== null && mouse.y !== null) {
+            const dxMouse = this.x - mouse.x;
+            const dyMouse = this.y - mouse.y;
+            const distance = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse);
+
+            if (distance < mouse.radius) {
+              const force = (mouse.radius - distance) / mouse.radius;
+              this.vx += (dxMouse / distance) * force * 1.5;
+              this.vy += (dyMouse / distance) * force * 1.5;
+            }
+          }
+
+          this.vx *= this.friction;
+          this.vy *= this.friction;
+          this.x += this.vx;
+          this.y += this.vy;
+
+          this.time += this.twinkleSpeed;
+        }
+
+        draw() {
+          let alpha = this.baseAlpha + Math.sin(this.time) * 0.4;
+          alpha = Math.max(0, Math.min(1, alpha));
+
+          let ratio = this.x / width;
+          ratio = Math.max(0, Math.min(1, ratio));
+
+          // Color 1 (Left): Light Yellow (Hoshi)
+          const r1 = 255,
+            g1 = 240,
+            b1 = 150;
+          // Color 2 (Right): Light Blue (Kai)
+          const r2 = 137,
+            g2 = 207,
+            b2 = 240;
+
+          const r = Math.round(r1 + (r2 - r1) * ratio);
+          const g = Math.round(g1 + (g2 - g1) * ratio);
+          const b = Math.round(b1 + (b2 - b1) * ratio);
+
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+          ctx.fill();
+        }
+      }
+
+      function initParticles() {
+        stars = [];
+        const particleCount = Math.min(Math.floor(window.innerWidth / 5), 400);
+        for (let i = 0; i < particleCount; i++) {
+          stars.push(new Star());
+        }
+      }
+      initParticles();
+
+      function animate() {
+        ctx.clearRect(0, 0, width, height);
+
+        stars.forEach((star) => {
+          star.update();
+          star.draw();
+        });
+
+        requestAnimationFrame(animate);
+      }
+      animate();
+
+      let resizeTimeout;
+      window.addEventListener("resize", () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+          initParticles();
+        }, 200);
       });
     </script>
   </body>
