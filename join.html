@@ -206,6 +206,10 @@
         max-width: 400px;
       }
 
+      .card-desc strong {
+        color: var(--text);
+      }
+
       .btn {
         font-family: "Rajdhani", sans-serif;
         font-size: 1.4rem;
@@ -284,7 +288,7 @@
 
         <div class="card-title">SESSION INVITE</div>
 
-        <div class="card-desc">
+        <div class="card-desc" id="card-desc">
           You've been invited to join a remote karaoke room in Encore.
         </div>
 
@@ -309,6 +313,79 @@
     </main>
 
     <script>
+      const SESSION_ID_LENGTH = 16;
+      const CHECKSUM_LENGTH = 4;
+
+      function base64urlDecode(str) {
+        str = str.replace(/-/g, "+").replace(/_/g, "/");
+        while (str.length % 4 !== 0) {
+          str += "=";
+        }
+        const binary = atob(str);
+        return Uint8Array.from(binary, (char) => char.charCodeAt(0));
+      }
+
+      async function sha256(bytes) {
+        return new Uint8Array(await crypto.subtle.digest("SHA-256", bytes));
+      }
+
+      async function decodeSessionCode(code) {
+        const match = code.match(/^SES(\d+)-(.+)$/);
+        if (!match) {
+          throw new Error("Invalid Session code format.");
+        }
+
+        const version = Number(match[1]);
+        const encodedPacket = match[2];
+
+        const packet = base64urlDecode(encodedPacket);
+
+        if (packet.length < 2 + SESSION_ID_LENGTH + CHECKSUM_LENGTH) {
+          throw new Error("Session code is too short.");
+        }
+
+        const payloadEnd = packet.length - CHECKSUM_LENGTH;
+        const payload = packet.slice(0, payloadEnd);
+        const receivedChecksum = packet.slice(payloadEnd);
+
+        // Recalculate checksum.
+        const hash = await sha256(payload);
+        const expectedChecksum = hash.slice(0, CHECKSUM_LENGTH);
+
+        for (let i = 0; i < CHECKSUM_LENGTH; i++) {
+          if (receivedChecksum[i] !== expectedChecksum[i]) {
+            throw new Error("Invalid or corrupted Session code.");
+          }
+        }
+
+        const nameLength = payload[1];
+        const nameStart = 2;
+        const nameEnd = nameStart + nameLength;
+
+        if (payload.length < nameEnd + SESSION_ID_LENGTH) {
+          throw new Error("Malformed payload structure.");
+        }
+
+        const decoder = new TextDecoder();
+        const hostName = decoder.decode(payload.slice(nameStart, nameEnd));
+        const sessionId = payload.slice(nameEnd, nameEnd + SESSION_ID_LENGTH);
+
+        return {
+          version,
+          hostName,
+          sessionId,
+        };
+      }
+
+      function escapeHtml(str) {
+        return str
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
       /**
        * Extracts the Room Code from either Netlify route path (/join/<roomCode>)
        * or query parameter (?room=<roomCode>).
@@ -361,11 +438,28 @@
         const joinView = document.getElementById("join-view");
         const errorView = document.getElementById("error-view");
         const openBtn = document.getElementById("open-btn");
+        const cardDesc = document.getElementById("card-desc");
 
         if (!roomCode) {
           joinView.style.display = "none";
           errorView.style.display = "flex";
           return;
+        }
+
+        let decoded;
+        try {
+          decoded = await decodeSessionCode(roomCode);
+        } catch (err) {
+          console.warn("[JOIN] Session code validation failed:", err);
+          joinView.style.display = "none";
+          errorView.style.display = "flex";
+          return;
+        }
+
+        if (decoded && decoded.hostName && cardDesc) {
+          cardDesc.innerHTML = `You've been invited to join <strong>${escapeHtml(
+            decoded.hostName,
+          )}'s</strong> remote karaoke room in Encore.`;
         }
 
         const deepLinkUrl = `encore://session/${encodeURIComponent(roomCode)}`;
