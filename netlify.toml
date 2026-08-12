@@ -1,4 +1,8 @@
+[[edge_functions]]
+  path = "/join/*"
+  function = "og-preview"
+
 [[redirects]]
   from = "/join/*"
-  to = "/join"
+  to = "/join.html"
   status = 200
