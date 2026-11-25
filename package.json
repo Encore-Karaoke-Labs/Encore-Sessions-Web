@@ -1,0 +1,24 @@
+{
+  "name": "encore-sessions-web",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/skywarspro15/Encore-Sessions-Web#readme",
+  "bugs": {
+    "url": "https://github.com/skywarspro15/Encore-Sessions-Web/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/skywarspro15/Encore-Sessions-Web.git"
+  },
+  "license": "MIT",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@clerk/backend": "^3.32.0",
+    "livekit-server-sdk": "^2.20.1"
+  }
+}
