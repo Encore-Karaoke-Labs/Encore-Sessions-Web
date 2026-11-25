@@ -2,6 +2,10 @@
   path = "/join/*"
   function = "og-preview"
 
+[[edge_functions]]
+  path = "/livekit-token"
+  function = "livekit-token"
+
 [[redirects]]
   from = "/join/*"
   to = "/join.html"
