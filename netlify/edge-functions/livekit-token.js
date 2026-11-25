@@ -33,12 +33,25 @@ export default async (request) => {
   let claims;
   try {
     const jwtKey = Netlify.env.get("CLERK_JWT_KEY")?.replace(/\\n/g, "\n");
-    claims = await verifyToken(bearerToken, {
-      jwtKey,
-    });
-  } catch {
+    if (!jwtKey) {
+      console.error("[livekit-token] CLERK_JWT_KEY is not configured.");
+      return Response.json(
+        { error: "Token verification is not configured" },
+        { status: 500, headers: corsHeaders },
+      );
+    }
+
+    claims = await verifyToken(bearerToken, { jwtKey });
+  } catch (error) {
+    const reason = [error?.reason, error?.message]
+      .filter(Boolean)
+      .join(": ")
+      .slice(0, 200);
+    console.error("[livekit-token] Token verification failed:", reason);
     return Response.json(
-      { error: "Invalid or expired token" },
+      {
+        error: `Invalid or expired token (${reason || "verification failed"})`,
+      },
       { status: 401, headers: corsHeaders },
     );
   }
