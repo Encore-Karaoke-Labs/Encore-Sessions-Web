@@ -1,7 +1,7 @@
 {
   "name": "encore-sessions-web",
   "version": "1.0.0",
-  "description": "",
+  "description": "The serverless backend for Encore Sessions.",
   "homepage": "https://github.com/skywarspro15/Encore-Sessions-Web#readme",
   "bugs": {
     "url": "https://github.com/skywarspro15/Encore-Sessions-Web/issues"
@@ -11,7 +11,7 @@
     "url": "git+https://github.com/skywarspro15/Encore-Sessions-Web.git"
   },
   "license": "MIT",
-  "author": "",
+  "author": "Encore Karaoke Labs",
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
